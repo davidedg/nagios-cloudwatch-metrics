@@ -72,6 +72,7 @@ OPTIONS:
                            the nagios state UNKNOWN. You could also supply a default value here (like 0). In that case we will work
                            with that value when no data points are returned.
 
+    --perfname="x"         Optional name for Metric Data returned in Performance Data
 
     --http_proxy="x"       When you use a proxy to connect to the AWS Cli, you can use this option. See for more information
                            this link: http://docs.aws.amazon.com/cli/latest/userguide/cli-http-proxy.html
@@ -123,7 +124,7 @@ See for more info: https://www.monitoring-plugins.org/doc/guidelines.html#THRESH
 #    --metric="IncomingBytes" \\
 #    --statistics="Average" \\
 #    --mins=15 \\
-#    --dimensions="Name=DeliveryStreamName,Value=Visits-To-Redshift" \\
+#    --dimensions="Name=DeliveryStreamName,Value=Visits-To-Redshift Name=DomainName,Value=elasticsearchcluster" \\
 #    --warning=100 \\
 #    --critical=50 \\
 #    --verbose
@@ -334,6 +335,7 @@ CRITICAL_MIN=0
 CRITICAL_MAX=0
 UNKNOWN=0
 DEFAULT_VALUE=""
+PERFNAME="perf"
 HTTP_PROXY=""
 HTTPS_PROXY=""
 TIMEOUTSEC=0
@@ -412,6 +414,11 @@ case ${i} in
 
 	--dimensions=* )
 	    DIMENSIONS="${i#*=}"
+		shift ;
+		;;
+
+	--perfname=* )
+	    PERFNAME="${i#*=}"
 		shift ;
 		;;
 
@@ -636,7 +643,7 @@ fi
 
 PERFDATA="${METRIC_VALUE}${UNIT};${WARNING};${CRITICAL};0.000000"
 
-BODY="${DIMENSIONS} ${METRIC} (${MINUTES} min ${STATISTICS}): ${METRIC_VALUE} ${UNIT} - ${MESSAGE} | perf=${PERFDATA}"
+BODY="${DIMENSIONS} ${METRIC} (${MINUTES} min ${STATISTICS}): ${METRIC_VALUE} ${UNIT} - ${MESSAGE} | ${PERFNAME}=${PERFDATA}"
 
 verbose "${BODY}"
 
