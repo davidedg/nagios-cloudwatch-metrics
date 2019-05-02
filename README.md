@@ -82,6 +82,11 @@ See the help message:
 
     --last-known           When given, we will fetch the last known values up to 20 minutes ago. Cloudwatch metrics are not always up to date.
                            By specifying this option we will walk back in 1 minute steps when no data is known for max 20 minutes.
+
+    --last-known-max       Maximum minutes for --last-known option (default is 20 minutes).
+
+    --last-known-interval  Step interval for --last-known-max (default is 1 minute).
+
                      
 
 
