@@ -81,7 +81,11 @@ OPTIONS:
                            this link: http://docs.aws.amazon.com/cli/latest/userguide/cli-http-proxy.html
 
     --last-known           When given, we will fetch the last known values up to 20 minutes ago. Cloudwatch metrics are not always up to date.
-                           By specifying this option we will walk back in 1 minute steps when no data is known for max 20 minutes.
+                           By specifying this option we will walk back in 1 minute steps when no data is known for max 20 minutes (or specified by --last-known-max).
+
+    --last-known-max       Maximum minutes for --last-known option (default is 20 minutes).
+
+    --last-known-interval  Step interval for --last-known-max (default is 1 minute).
 
 
 Example threshold values:
@@ -340,6 +344,8 @@ HTTP_PROXY=""
 HTTPS_PROXY=""
 TIMEOUTSEC=0
 LASTKNOWN=0
+LASTKNOWNMAX=20
+LASTKNOWNINTERVAL=1
 
 #
 # Awesome parameter parsing, see http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
@@ -404,6 +410,16 @@ case ${i} in
 
 	--last-known )
 		LASTKNOWN=1
+		shift ;
+		;;
+
+	--last-known-max=* )
+		LASTKNOWNMAX="${i#*=}"
+		shift ;
+		;;
+
+	--last-known-interval=* )
+		LASTKNOWNINTERVAL="${i#*=}"
 		shift ;
 		;;
 
@@ -505,7 +521,7 @@ verbose "Period (Seconds): ${SECS}";
 verbose "Dimensions: ${DIMENSIONS}";
 
 LASTKNOWN_MINUTES=0
-while [[ ${LASTKNOWN_MINUTES} -lt 20 ]] ;
+while [[ ${LASTKNOWN_MINUTES} -lt ${LASTKNOWNMAX} ]] ;
 do
     unamestr=`uname`
     STARTMINS=$((MINUTES+1+LASTKNOWN_MINUTES))
@@ -585,7 +601,7 @@ do
     # No data found? Then go back in time
     if [[  "${METRIC_VALUE}" == "null" ]] && [[ ${LASTKNOWN} -eq 1 ]];
     then
-        LASTKNOWN_MINUTES=$((LASTKNOWN_MINUTES+1))
+        LASTKNOWN_MINUTES=$((LASTKNOWN_MINUTES+${LASTKNOWNINTERVAL}))
         continue;
     fi
 
