@@ -72,6 +72,7 @@ See the help message:
                            the nagios state UNKNOWN. You could also supply a default value here (like 0). In that case we will work
                            with that value when no data points are returned.
 
+    --perfname="x"         Optional name for Metric Data returned in Performance Data
 
     --http_proxy="x"       When you use a proxy to connect to the AWS Cli, you can use this option. See for more information
                            this link: http://docs.aws.amazon.com/cli/latest/userguide/cli-http-proxy.html
@@ -244,6 +245,18 @@ define command {
 define command {
 	command_name	check_aws_rds
 	command_line	$USER1$/nagios-cloudwatch-metrics/check_cloudwatch.sh --region=eu-west-1 --namespace="RDS" --metric="$ARG1$" --statistics="Average" --mins=5 --dimensions="Name=DBClusterIdentifier,Value=$ARG2$ Name=Role,Value=$ARG3$" --warning=$ARG4$ --critical=$ARG5$
+}
+
+#
+# Check check_aws_elasticsearch
+# $ARG1$: Metric, for example: FreeStorageSpace
+# $ARG2$: DomainName
+# $ARG3$: ClientId
+# $ARG4$: Warning value
+# $ARG5$: Critical value
+define command {
+	command_name	check_aws_elasticsearch
+	command_line	$USER1$/nagios-cloudwatch-metrics/check_cloudwatch.sh --region=us-east-1 --namespace="ES" --metric="$ARG1$" --statistics="Minimum" --mins=15 --dimensions="Name=DomainName,Value=$ARG2$ Name=ClientId,Value=$ARG3$" --warning=$ARG4$ --critical=$ARG5$
 }
 
 # Defined in HOST configuration are:
